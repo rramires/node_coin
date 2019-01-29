@@ -1,5 +1,5 @@
 {
-  "name": "003-NodeCoin",
+  "name": "NodeCoin",
   "version": "1.0.0",
   "description": "Experimental Cryptocurrency - Made with NodeJs",
   "main": "index.js",
@@ -8,5 +8,8 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^1.18.9"
+  }
 }
