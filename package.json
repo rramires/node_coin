@@ -1,0 +1,12 @@
+{
+  "name": "003-NodeCoin",
+  "version": "1.0.0",
+  "description": "Experimental Cryptocurrency - Made with NodeJs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
