@@ -11,11 +11,11 @@ describe('Block', () => {
         block = Block.mineBlock(lastBlock, data); 
     });
     // Finalmente os testes, que serão executados na sequencia
-    it('Verificando se `data` corresponde ao valor de entrada', () => { 
+    it('Validando se `data` corresponde ao valor de entrada', () => { 
         // faz as comparações do teste
         expect(block.data).toEqual(data);
     });
-    it('Verificando se `lastHash` corresponde ao hash do último bloco', () => { 
+    it('Validando se `lastHash` corresponde ao hash do último bloco', () => { 
         expect(block.lastHash).toEqual(lastBlock.hash);
     });
 });

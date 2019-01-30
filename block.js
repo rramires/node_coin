@@ -63,6 +63,17 @@ class Block{
         return SHA256(`${timestamp}${lastHash}${data}`).toString();
     }
 
+    /**
+     * Retorna um hash a partir de um bloco 
+     * @param {Block} block
+     * @returns {string} hash no formato string 
+     */
+    static blockHash(block){
+        // destructuring para pegar as propriedades do objeto
+        const {timestamp, lastHash, data} = block;
+        // hash
+        return Block.hash(timestamp, lastHash, data);
+    }
 }
 // exportando a classe
 module.exports = Block;
