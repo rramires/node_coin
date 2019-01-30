@@ -1,3 +1,5 @@
+const SHA256 = require('crypto-js/sha256');
+//
 class Block{
     /**
      * Construtor do Bloco  
@@ -15,14 +17,52 @@ class Block{
 
     /**
      * Retorna os valores das propriedades
+     * @returns {string} valores no formato string
      */
     toString(){
         return `Block -
         Timestamp : ${this.timestamp}
-        Last Hash : ${this.lastHash.substring(0, 10)}
-        Hash      : ${this.hash.substring(0, 10)}
+        Last Hash : ${this.lastHash.substr(0, 10)}
+        Hash      : ${this.hash.substr(0, 10)}
         Data      : ${this.data}`;
     }
+
+    /**
+     * Cria e retorna o bloco gênese
+     * @returns {Block} new Block()
+     */
+    static genesis(){
+        // Aleatório '0bf30...', poderia ser qualquer coisa hexadecimal
+        // retorna o novo bloco
+        return new this('Genesis Time', '-----', '0bf30e9455d84a8c31b1', [])
+    }
+
+    /**
+     * Cria e retorna um novo bloco, linkado ao anterior
+     * @returns {Block} new Block()
+     */
+    static mineBlock(lastBlock, data){
+        // pega o timestamp
+        const timestamp = Date.now().toString();
+        // pega o hash do bloco anterior
+        const lastHash = lastBlock.hash;
+        // pega o hash atual
+        const hash = Block.hash(timestamp, lastHash, data);
+        // retorna o novo bloco
+        return new this(timestamp, lastHash, hash, data)
+    }
+
+    /**
+     * Gera um hash
+     * @param {string} timestamp 
+     * @param {string} lastHash 
+     * @param {string} data 
+     * @returns {string} hash no formato string 
+     */
+    static hash(timestamp, lastHash, data){
+        return SHA256(`${timestamp}${lastHash}${data}`).toString();
+    }
+
 }
 // exportando a classe
 module.exports = Block;
