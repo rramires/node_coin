@@ -1,16 +1,16 @@
 const Block = require('./block');
 
-// nome da classe que vamos testar
+// Na descrição vamo usar o nome da classe que vamos testar
 describe('Block', () => {
-    // declarar usando let, para limitar o escopo
+    // Usar declarações com o let, para limitar o escopo
     let data, lastBlock, block;
-    // instanciar a classe a ser testada e valores
+    // Setar as variaveis nesse método que é chamado antes do loop
     beforeEach(() => {
         data = 'dataTest'
         lastBlock = Block.genesis();
         block = Block.mineBlock(lastBlock, data); 
     });
-    // Testes unitários
+    // Finalmente os testes, que serão executados na sequencia
     it('Verificando se `data` corresponde ao valor de entrada', () => { 
         // faz as comparações do teste
         expect(block.data).toEqual(data);
@@ -18,4 +18,4 @@ describe('Block', () => {
     it('Verificando se `lastHash` corresponde ao hash do último bloco', () => { 
         expect(block.lastHash).toEqual(lastBlock.hash);
     });
-})
+});
