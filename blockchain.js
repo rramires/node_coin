@@ -57,6 +57,30 @@ class Blockchain{
         }
         return true;
     }
+
+    /**
+     * Substitui a chain, se for maior e válida
+     * @param {array} newChain - array de blocos 
+     */
+    replaceChain(newChain){
+        // Verifica se a cadeia recebida de outro client
+        // é menor que a do client que está validando
+        if(newChain.length <= this.chain.length){
+            console.log('Received chain is not longer than the current chain!');
+            // se for menor, aborta o replace
+            return;
+        // Verificar se a cadeia não é valida
+        } else if(!this.isValidChain(newChain)){
+            console.log('Received chain is not valid!');
+            // se não for válida, aborta o replace
+            return;
+        // passando nas duas validações, faz o replace
+        } else {
+            console.log('Current chain, replaced!');
+            // replace
+            this.chain = newChain;
+        }
+    }
 }
 // exportando a classe
 module.exports = Blockchain;

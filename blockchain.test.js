@@ -36,4 +36,16 @@ describe('Blockchain', () => {
         bc2.addBlock(data2);
         expect(bc.isValidChain(bc2.chain)).toBe(true);
     });
+    it('Invalidando a substituição da `chain` se for menor que a atual', () =>{
+        // foi adicionado 1 bloco a cadeia bc, a bc2 tem apenas o gênese
+        bc.addBlock(data); 
+        bc.replaceChain(bc2.chain); 
+        expect(bc.chain).not.toEqual(bc2.chain);
+    });
+    it('Validando a substituição da `chain` se for maior que a atual', () =>{
+        // foi adicionado 1 bloco a cadeia2 a bc tem apenas o gênese
+        bc2.addBlock(data2); 
+        bc.replaceChain(bc2.chain);
+        expect(bc.chain).toEqual(bc2.chain);
+    });
 });
