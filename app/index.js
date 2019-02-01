@@ -1,16 +1,19 @@
 const express = require('express');
-const bodyParser = require('body-parser')
+const bodyParser = require('body-parser');
 const Blochchain = require('../blockchain');
+const P2pServer = require('./p2p-server');
 
 // Porta da API, default 3001 mas pode ser alterada 
 // via linha de comando na hora da execução, ex:
-// port=3002 npm run dev
-const HTTP_PORT = process.env.port || 3001;
+// http_port=3002 npm run dev
+const HTTP_PORT = process.env.http_port || 3001;
 
 // instancia da API
 const app = express();
 // instancia da Blockchain
 const bc = new Blochchain();
+// instancia do servidor p2p
+const p2pServer = new P2pServer(bc);
 
 /**
  * Intercepta as chamadas e transforma em JSON
@@ -40,3 +43,4 @@ app.post('/mine', (req, res) => {
 
 // executando 
 app.listen(HTTP_PORT, () => console.log(`App listening on port: ${HTTP_PORT}`));
+p2pServer.listen();
