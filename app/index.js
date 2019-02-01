@@ -36,7 +36,9 @@ app.get('/blocks', (req, res) => {
 app.post('/mine', (req, res) => {
     // pega os dados no formato JSON e adiciona um bloco
     const block = bc.addBlock(req.body.data);
-    console.log(`New block added: ${block.toString()}`);    
+    console.log(`New block added: ${block.toString()}`);  
+    // executa a sincronização via p2p-server
+    p2pServer.syncChains();
     // redireciona para o método blocks
     res.redirect('/blocks');
 });

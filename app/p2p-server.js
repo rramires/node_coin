@@ -41,7 +41,7 @@ class P2pServer{
             // cria uma nova conexão
             const socket = new Websocket(peer);
             // evento disparado sempre que um novo socket conectar
-            socket.on('open', () => this.connectSocket(socket))
+            socket.on('open', () => this.connectSocket(socket));
         });
     }
 
@@ -53,6 +53,42 @@ class P2pServer{
         // armazenaremos, todos que conectarem nessa lista
         this.sockets.push(socket);
         console.log('Socket connected');
+        // adiciona o método ouvinte
+        this.messageHandler(socket);
+        // faz o envio da 1ª instância, para as que se conectarem
+        this.sendChain(socket);
+    }
+
+    /**
+     * Event handler do método send
+     * @param {socket} socket 
+     */
+    messageHandler(socket){
+        socket.on('message', message => {
+            const data = JSON.parse(message);
+            //console.log('message->data:', data);
+            // substitui a chain se passar pelos critérios
+            this.blockchain.replaceChain(data);
+        });
+    }
+
+    /**
+     * Faz o envio
+     * @param {socket} socket 
+     */
+    sendChain(socket){
+        // envia o blockchain
+        socket.send(JSON.stringify(this.blockchain.chain));
+    }
+    
+    /**
+     * Percorre todas as instâncias 
+     */
+    syncChains(){
+        this.sockets.forEach(socket => {
+            // faz o envio das demais instâncias
+            this.sendChain(socket);
+        });
     }
 }
 module.exports = P2pServer;
