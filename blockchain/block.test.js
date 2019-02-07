@@ -1,4 +1,5 @@
 const Block = require('./block');
+const { DIFFICULTY } = require('../config');
 
 // Na descrição vamo usar o nome da classe que vamos testar
 describe('Block', () => {
@@ -17,5 +18,15 @@ describe('Block', () => {
     });
     it('Validando se `lastHash` corresponde ao hash do último bloco', () => { 
         expect(block.lastHash).toEqual(lastBlock.hash);
+    });
+    it('Validando quando o hash fica equivalente a dificuldade', () => {
+        expect(block.hash.substr(0, block.difficulty)).toEqual('0'.repeat(block.difficulty));
+        console.log(block.toString());
+    });
+    it('Validando quando a dificuldade for ajustada para menos', () => {
+        expect(Block.adjustDifficulty(block, block.timestamp + 3600000)).toEqual(block.difficulty -1);
+    });
+    it('Validando quando a dificuldade for ajustada para mais', () => {
+        expect(Block.adjustDifficulty(block, block.timestamp +1)).toEqual(block.difficulty +1);
     });
 });

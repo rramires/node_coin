@@ -1,4 +1,5 @@
 const SHA256 = require('crypto-js/sha256');
+const { DIFFICULTY, MINE_RATE } = require('../config');
 //
 class Block{
     /**
@@ -7,12 +8,15 @@ class Block{
      * @param {string} lastHash -  Último Hash/Hash do bloco anterior
      * @param {string} hash - Hash desse bloco (ID)
      * @param {string} data - Qualquer tipo de dados
+     * @param {string} nonce - Valor único
      */
-    constructor(timestamp, lastHash, hash, data){
+    constructor(timestamp, lastHash, hash, data, nonce, difficulty){
         this.timestamp = timestamp;
         this.lastHash = lastHash;
         this.hash = hash;
         this.data = data;
+        this.nonce = nonce;
+        this.difficulty = difficulty || DIFFICULTY;
     }
 
     /**
@@ -21,10 +25,12 @@ class Block{
      */
     toString(){
         return `Block -
-        Timestamp : ${this.timestamp}
-        Last Hash : ${this.lastHash.substr(0, 10)}
-        Hash      : ${this.hash.substr(0, 10)}
-        Data      : ${this.data}`;
+        Timestamp  : ${this.timestamp}
+        Last Hash  : ${this.lastHash.substr(0, 10)}
+        Hash       : ${this.hash.substr(0, 10)}
+        Nonce      : ${this.nonce}
+        Difficulty : ${this.difficulty}
+        Data       : ${this.data}`;
     }
 
     /**
@@ -34,7 +40,7 @@ class Block{
     static genesis(){
         // Aleatório '0bf30...', poderia ser qualquer coisa hexadecimal
         // retorna o novo bloco
-        return new this('Genesis Time', '-----', '0bf30e9455d84a8c31b1', [])
+        return new this('Genesis Time', '-----', '0bf30e9455d84a8c31b1', [], 0, DIFFICULTY);
     }
 
     /**
@@ -42,14 +48,26 @@ class Block{
      * @returns {Block} new Block()
      */
     static mineBlock(lastBlock, data){
-        // pega o timestamp
-        const timestamp = Date.now().toString();
+        // declaracoes
+        let timestamp, hash, nonce = 0;
         // pega o hash do bloco anterior
         const lastHash = lastBlock.hash;
-        // pega o hash atual
-        const hash = Block.hash(timestamp, lastHash, data);
+        // pega a dificuldade do bloco anterior
+        let { difficulty } = lastBlock; // 32
+        // loop
+        do{
+            // incremento
+            nonce++;
+            // pega o timestamp
+            timestamp = Date.now();
+            // chama método para calcular a dificuldade
+            difficulty = Block.adjustDifficulty(lastBlock, timestamp); // 32
+            // pega o hash atual
+            hash = Block.hash(timestamp, lastHash, data, nonce, difficulty); // 32
+            // Dificulty = 4 - 0 !== 0000, 00 !== 0000, 000 !== 0000, etc.
+        } while(hash.substr(0, difficulty) !== '0'.repeat(difficulty)); // <<<<--------
         // retorna o novo bloco
-        return new this(timestamp, lastHash, hash, data)
+        return new this(timestamp, lastHash, hash, data, nonce, difficulty); // <<<<--------
     }
 
     /**
@@ -57,10 +75,11 @@ class Block{
      * @param {string} timestamp 
      * @param {string} lastHash 
      * @param {string} data 
+     * @param {string} nonce 
      * @returns {string} hash no formato string 
      */
-    static hash(timestamp, lastHash, data){
-        return SHA256(`${timestamp}${lastHash}${data}`).toString();
+    static hash(timestamp, lastHash, data, nonce, difficulty){
+        return SHA256(`${timestamp}${lastHash}${data}${nonce}${difficulty}`).toString();
     }
 
     /**
@@ -70,9 +89,23 @@ class Block{
      */
     static blockHash(block){
         // destructuring para pegar as propriedades do objeto
-        const {timestamp, lastHash, data} = block;
+        const {timestamp, lastHash, data, nonce, difficulty} = block;
         // hash
-        return Block.hash(timestamp, lastHash, data);
+        return Block.hash(timestamp, lastHash, data, nonce, difficulty);
+    }
+
+    /**
+     * Ajusta a dificuldade dinamicamente 
+     * @param {Block} lastBlock 
+     * @param {Number} currentTime 
+     */
+    static adjustDifficulty(lastBlock, currentTime){
+        let { difficulty } = lastBlock;
+        // se o tempo do último bloco passar de X ms
+        // aumenta a dificuldade, senão diminui
+        difficulty = lastBlock.timestamp + MINE_RATE > currentTime ? 
+                     difficulty + 1 : difficulty -1;
+        return difficulty;
     }
 }
 // exportando a classe
