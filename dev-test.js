@@ -6,7 +6,7 @@ const testBlock = Block.mineBlock(Block.genesis(), 'Bloco de Teste');
 // imprime
 console.log(testBlock.toString());
 */
-
+/*
 const Blockchain = require('./blockchain');
 
 function testDifficunty(){
@@ -25,3 +25,9 @@ function testDifficunty(){
     console.log(`Finalizado às: ${dt.getHours()}:${dt.getMinutes()}:${dt.getSeconds()}.${dt.getMilliseconds()}`);
 }
 testDifficunty();
+*/
+
+const Wallet = require('./wallet');
+const wallet = new Wallet();
+console.log(wallet.toString());
+

@@ -53,7 +53,7 @@ class Block{
         // pega o hash do bloco anterior
         const lastHash = lastBlock.hash;
         // pega a dificuldade do bloco anterior
-        let { difficulty } = lastBlock; // 32
+        let { difficulty } = lastBlock; 
         // loop
         do{
             // incremento
@@ -61,13 +61,13 @@ class Block{
             // pega o timestamp
             timestamp = Date.now();
             // chama método para calcular a dificuldade
-            difficulty = Block.adjustDifficulty(lastBlock, timestamp); // 32
+            difficulty = Block.adjustDifficulty(lastBlock, timestamp); 
             // pega o hash atual
-            hash = Block.hash(timestamp, lastHash, data, nonce, difficulty); // 32
+            hash = Block.hash(timestamp, lastHash, data, nonce, difficulty); 
             // Dificulty = 4 - 0 !== 0000, 00 !== 0000, 000 !== 0000, etc.
-        } while(hash.substr(0, difficulty) !== '0'.repeat(difficulty)); // <<<<--------
+        } while(hash.substr(0, difficulty) !== '0'.repeat(difficulty)); 
         // retorna o novo bloco
-        return new this(timestamp, lastHash, hash, data, nonce, difficulty); // <<<<--------
+        return new this(timestamp, lastHash, hash, data, nonce, difficulty); 
     }
 
     /**
