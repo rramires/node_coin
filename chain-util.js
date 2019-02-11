@@ -1,8 +1,18 @@
+const SHA256 = require('crypto-js/sha256');
 const EC = require('elliptic').ec;
 const uuidV1 = require('uuid/v1');
 const ec = new EC('secp256k1');
 
 class ChainUtil{
+
+    /**
+     * Cria um hash
+     * @param {*} data 
+     * @returns {string} - hash no formato string
+     */
+    static hash(data){
+        return SHA256(JSON.stringify(data)).toString();
+    }
 
     /**
      * Gera o par de chaves

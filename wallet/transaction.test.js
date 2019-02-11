@@ -33,5 +33,8 @@ describe('Transaction', () => {
           expect(transaction).toEqual(undefined);
         });
     });
+    it('Valida se o saldo de entrada é igual o saldo da carteira', () => {
+        expect(transaction.input.amount).toEqual(wallet.balance);
+    });
 });
 

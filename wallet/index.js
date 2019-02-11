@@ -21,6 +21,14 @@ class Wallet{
         publicKey: ${this.publicKey.toString()}
         balance: ${this.balance.toString()}`;
     }
+
+    /**
+     * Cria a assinatura
+     * @param {string} dataHash 
+     */
+    sign(dataHash){
+        return this.keyPair.sign(dataHash);
+    }
 }
 // exportando a classe
 module.exports = Wallet;

@@ -36,8 +36,25 @@ class Transaction{
             // adiciona o valor ao destinatário
             { amount, address: recipient }
         ]);
+
+        // assina a transação
+        Transaction.signTransaction(transaction, senderWallet);
     
         return transaction;
+    }
+
+    /**
+     * Assina uma transação
+     * @param {Transaction} transaction 
+     * @param {Wallet} senderWallet 
+     */
+    static signTransaction(transaction, senderWallet){
+        transaction.input = {
+            timestamp: Date.now(),
+            amount: senderWallet.balance,
+            address: senderWallet.publicKey,
+            signature: senderWallet.sign(ChainUtil.hash(transaction.outputs))
+        }
     }
 }
 // exportando a classe
