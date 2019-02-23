@@ -29,6 +29,17 @@ class ChainUtil{
     static id(){
         return uuidV1();
     }
+
+    /**
+     * Verifica a assinatura de uma transação
+     * @param {string} publicKey 
+     * @param {string} signature 
+     * @param {string} dataHash 
+     * @returns {boolean} - assinatura válida ou inválida
+     */
+    static verifySignature(publicKey, signature, dataHash){
+        return ec.keyFromPublic(publicKey, 'hex', ).verify(dataHash, signature);
+    }
 }
 // exportando a classe
 module.exports = ChainUtil;

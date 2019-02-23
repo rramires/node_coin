@@ -13,12 +13,12 @@ describe('Transaction', () => {
         transaction = Transaction.newTransaction(wallet, recipient, amount);
     });
     // tests
-    it('Valida subtração de `amount` do saldo', () => {
+    it('Valida se a subtração de `amount` do saldo corresponde ao saldo restante', () => {
         // pesquisa output do remetente
         expect(transaction.outputs.find(output => output.address === wallet.publicKey).amount)
               .toEqual(wallet.balance - amount);
     });
-    it('Valida adicão de `amount` no destinatário', () => {
+    it('Valida se `amount` corresponde ao amount do output', () => {
         // pesquisa output do destinatário
         expect(transaction.outputs.find(output => output.address === recipient).amount)
               .toEqual(amount);
@@ -35,6 +35,31 @@ describe('Transaction', () => {
     });
     it('Valida se o saldo de entrada é igual o saldo da carteira', () => {
         expect(transaction.input.amount).toEqual(wallet.balance);
+    });
+    it('Valida transação válida', () => {
+        expect(Transaction.verifyTransaction(transaction)).toBe(true);
+    }); 
+    it('Invalida transação corrompida', () => {
+        transaction.outputs[0].amount = 666; // alterando um valor
+        expect(Transaction.verifyTransaction(transaction)).toBe(false);
+    }); 
+    describe('Atualização da transação para adicionar saída', () => {
+        let nextAmount, nextRecipient;
+        beforeEach(() => {
+            nextAmount = 20;
+            nextRecipient = 'n3xt4ddr355';
+            transaction = transaction.update(wallet, nextRecipient, nextAmount);
+        });
+        
+        it('Valida se a subtração de `amount` do saldo corresponde ao saldo restante', () => {
+            expect(transaction.outputs.find(output => output.address === wallet.publicKey).amount)
+            .toEqual(wallet.balance - amount - nextAmount);
+        });
+        
+        it('Valida se `amount` corresponde ao amount do output', () => {
+            expect(transaction.outputs.find(output => output.address === nextRecipient).amount)
+            .toEqual(nextAmount);
+        });
     });
 });
 
