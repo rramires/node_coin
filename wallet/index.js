@@ -1,5 +1,6 @@
 const ChainUtil = require('../chain-util');
 const { INITIAL_BALANCE } = require('../config');
+const Transaction = require('./transaction');
 
 class Wallet{
 
@@ -28,6 +29,31 @@ class Wallet{
      */
     sign(dataHash){
         return this.keyPair.sign(dataHash);
+    }
+
+    /**
+     * Cria ou atualiza uma transação, se já existir na pool
+     * @param {String} recipient - endereco da carteira destino 
+     * @param {Number} amount - valor enviado
+     * @param {TransactionPool} transactionPool - piscina de transações
+     * @returns {Transaction} - transaction
+     */
+    createTransaction(recipient, amount, transactionPool) {
+        if(amount > this.balance){
+            console.log(`Amount: ${amount}, exceeds current balance: ${this.balance}`);
+            return;
+        }
+        // busca na pool
+        let transaction = transactionPool.existingTransaction(this.publicKey);
+        // se existir atualiza
+        if(transaction) {
+            transaction.update(this, recipient, amount);
+            // senao cria
+        }else{
+            transaction = Transaction.newTransaction(this, recipient, amount);
+            transactionPool.updateOrAddTransaction(transaction);
+        }
+        return transaction;
     }
 }
 // exportando a classe

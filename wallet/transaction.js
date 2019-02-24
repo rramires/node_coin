@@ -12,7 +12,7 @@ class Transaction{
     }
 
     /**
-     * Atualiza uma transação
+     * Atualiza uma transação, adicionando mais um output
      * @param {Wallet} senderWallet - carteira remetente
      * @param {string} recipient - endereco da carteira destino
      * @param {Number} amount - valor enviado
