@@ -2,6 +2,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const Blochchain = require('../blockchain');
 const P2pServer = require('./p2p-server');
+const Wallet = require('../wallet');
+const TransactionPool = require('../wallet/transaction-pool');
 
 // Porta da API, default 3001 mas pode ser alterada 
 // via linha de comando na hora da execução, ex:
@@ -14,6 +16,10 @@ const app = express();
 const bc = new Blochchain();
 // instancia do servidor p2p
 const p2pServer = new P2pServer(bc);
+// instância da wallet
+const wallet = new Wallet();
+// instância da pool
+const tp = new TransactionPool();
 
 /**
  * Intercepta as chamadas e transforma em JSON
@@ -31,7 +37,7 @@ app.get('/blocks', (req, res) => {
 
 /**
  * Adiciona um bloco usando dados vindos no formato JSON
- * Use: localhost:3001/blocks
+ * Use: localhost:3001/mine
  */
 app.post('/mine', (req, res) => {
     // pega os dados no formato JSON e adiciona um bloco
@@ -41,6 +47,25 @@ app.post('/mine', (req, res) => {
     p2pServer.syncChains();
     // redireciona para o método blocks
     res.redirect('/blocks');
+});
+
+/**
+ * Retorna um JSON contendo as transações
+ * Use: localhost:3001/transactions
+ */
+app.get('/transactions', (req, res) => {
+    res.json(tp.transactions);
+});
+
+/**
+ * Adiciona uma transação usando dados no formato JSON
+ * Use: localhost:3001/transact - raw application/json
+ * { "recipient": "foo-4dr3ss", "amount": 50 }
+ */
+app.post('/transact', (req, res) => {
+    const { recipient, amount } = req.body;
+    const transaction = wallet.createTransaction(recipient, amount, tp);
+    res.redirect('/transactions');
 });
 
 // executando 

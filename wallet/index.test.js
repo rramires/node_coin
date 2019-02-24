@@ -11,7 +11,7 @@ describe('Wallet', () => {
         tp = new TransactionPool();
     });
 
-    describe('Criação de transação', () => {
+    describe('Criando a transação', () => {
         // declarações
         let transaction, sendAmount, recipient;
 
@@ -22,7 +22,7 @@ describe('Wallet', () => {
             transaction = wallet.createTransaction(recipient, sendAmount, tp);
         });
 
-        describe('Adicionando mais uma saída com o mesmo destinatário', () => {
+        describe('Refazendo a mesma transação, adicionando mais uma saída do mesmo valor', () => {
             // Set's
             beforeEach(() => {
                 wallet.createTransaction(recipient, sendAmount, tp);
