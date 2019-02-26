@@ -8,14 +8,22 @@ const P2P_PORT = process.env.p2p_port || 5001;
 // peers=ws://localhost:5001,ws://localhost:5002 npm run dev
 const peers = process.env.peers ? process.env.peers.split(',') : [];
 
+// tipagem dos dados enviados via socket
+const MESSAGE_TYPES = {
+    chain: 'CHAIN',
+    transaction: 'TRANSACTION'
+};
+
+
 class P2pServer{
 
     /**
      * Construtor do servidor p2p
      * @param {Blockchain} blockchain 
      */
-    constructor(blockchain){
+    constructor(blockchain, transactionPool){
         this.blockchain = blockchain;
+        this.transactionPool = transactionPool;
         this.sockets = [];
     }
 
@@ -66,9 +74,14 @@ class P2pServer{
     messageHandler(socket){
         socket.on('message', message => {
             const data = JSON.parse(message);
-            //console.log('message->data:', data);
-            // substitui a chain se passar pelos critérios
-            this.blockchain.replaceChain(data);
+            switch(data.type) {
+                case MESSAGE_TYPES.chain:
+                    this.blockchain.replaceChain(data.chain);
+                    break;
+                case MESSAGE_TYPES.transaction:
+                    this.transactionPool.updateOrAddTransaction(data.transaction);
+                    break;
+            }
         });
     }
 
@@ -79,6 +92,8 @@ class P2pServer{
     sendChain(socket){
         // envia o blockchain
         socket.send(JSON.stringify(this.blockchain.chain));
+        socket.send(JSON.stringify({ type: MESSAGE_TYPES.chain, 
+                                    chain: this.blockchain.chain }));
     }
     
     /**
@@ -89,6 +104,22 @@ class P2pServer{
             // faz o envio das demais instâncias
             this.sendChain(socket);
         });
+    }
+    
+    /**
+     * Faz o envio
+     * @param {socket} socket 
+     * @param {Transaction} transaction 
+     */
+    sendTransaction(socket, transaction) {
+        socket.send(JSON.stringify({ type: MESSAGE_TYPES.transaction, transaction }));
+    }
+    
+    /**
+     * Percorre todas as instâncias 
+     */
+    broadcastTransaction(transaction) {
+        this.sockets.forEach(socket => this.sendTransaction(socket, transaction));
     }
 }
 module.exports = P2pServer;

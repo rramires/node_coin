@@ -14,12 +14,12 @@ const HTTP_PORT = process.env.http_port || 3001;
 const app = express();
 // instancia da Blockchain
 const bc = new Blochchain();
-// instancia do servidor p2p
-const p2pServer = new P2pServer(bc);
 // instância da wallet
 const wallet = new Wallet();
 // instância da pool
 const tp = new TransactionPool();
+// instancia do servidor p2p
+const p2pServer = new P2pServer(bc, tp);
 
 /**
  * Intercepta as chamadas e transforma em JSON
@@ -65,7 +65,15 @@ app.get('/transactions', (req, res) => {
 app.post('/transact', (req, res) => {
     const { recipient, amount } = req.body;
     const transaction = wallet.createTransaction(recipient, amount, tp);
+    p2pServer.broadcastTransaction(transaction);
     res.redirect('/transactions');
+});
+
+/**
+ * Retorna a chave pública
+ */
+app.get('/public-key', (req, res) => {
+    res.json({ publicKey: wallet.publicKey });
 });
 
 // executando 
