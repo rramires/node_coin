@@ -10,8 +10,9 @@ describe('TransactionPool', () => {
     beforeEach(() => {
       tp = new TransactionPool();
       wallet = new Wallet();
-      transaction = Transaction.newTransaction(wallet, 'r4nd-4dr355', 30);
-      tp.updateOrAddTransaction(transaction);
+      // transaction = Transaction.newTransaction(wallet, 'r4nd-4dr355', 30);
+      // tp.updateOrAddTransaction(transaction);
+      transaction = wallet.createTransaction('r4nd-4dr355', 30, tp);
     });
     // tests
     it('Valida adição de transação na pool', () => {
@@ -27,5 +28,29 @@ describe('TransactionPool', () => {
       // comparando para ver que está diferente da original
       expect(tp.transactions.find(t => t.id === newTransaction.id))
             .not.toEqual(oldTransaction);
+    });
+    describe('Misturando transações válidas e inválidas', () => {
+      // declarações
+      let validTransactions;
+      // Set's
+      beforeEach(() => {
+        validTransactions = [ ...tp.transactions ]; // clona
+        for(let i=0; i<6; i++) { // cria 6 transações
+          wallet = new Wallet();
+          transaction = wallet.createTransaction('r4nd-4dr355', 30, tp);
+          if(i%2 == 0){
+            transaction.input.amount = 9999; // corrompe a transação
+          }else{
+            validTransactions.push(transaction);
+          }
+        }
+      });
+      it('Invalida as transações corrompidas, pela diferença nos arrays', () => {
+        expect(JSON.stringify(tp.transactions))
+          .not.toEqual(JSON.stringify(validTransactions));
+      });
+      it('Valida se retorna somente as válidas', () => {
+        expect(tp.validTransactions()).toEqual(validTransactions);
+      });
     });
 });

@@ -1,3 +1,5 @@
+const Transaction = require('./transaction');
+
 class TransactionPool{
 
     /**
@@ -30,6 +32,31 @@ class TransactionPool{
      */
     existingTransaction(address) {
         return this.transactions.find(transaction => transaction.input.address === address);
+    }
+
+    /**
+     * Retorna as transações válidas
+     */
+    validTransactions() {
+        // filtra as transações, pegando as que são válidas
+        return this.transactions.filter(transaction => {
+            // verifica se o total enviado, corresponde as saídas
+            const outputTotal = transaction.outputs.reduce((total, output) => {
+                return total + output.amount;
+            }, 0); // total inicia com 0
+            // se input for diferente da soma dos outputs
+            if(transaction.input.amount !== outputTotal){
+                console.log(`Invalid transaction from ${transaction.input.address}`);
+                return; // exclui a transação do filter
+            }
+            // Verifica se a assinatura da transação é válida
+            if(!Transaction.verifyTransaction(transaction)){
+                console.log(`Invalid signature from ${transaction.input.address}`);
+                return; // exclui a transação do filter
+            }
+            // adiciona a transação no filter
+            return transaction;
+        });
     }
 }
 module.exports = TransactionPool;
