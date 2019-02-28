@@ -1,4 +1,5 @@
 const ChainUtil = require('../chain-util');
+const { MINING_REWARD } = require('../config');
 
 class Transaction{
 
@@ -39,6 +40,23 @@ class Transaction{
     }
 
     /**
+     * Cria uma transação com saídas
+     * @param {Wallet} senderWallet 
+     * @param {Array} outputs 
+     * @returns {Transaction} new Transaction
+     */
+    static transactionWithOutputs(senderWallet, outputs){
+        // insere a transação
+        const transaction = new this();
+        // adiciona as saídas
+        transaction.outputs.push(...outputs);
+        // assina a transação
+        Transaction.signTransaction(transaction, senderWallet);
+        return transaction;
+    }
+
+
+    /**
      * Cria uma nova transação
      * @param {Wallet} senderWallet - carteira remetente
      * @param {string} recipient - endereco da carteira destino
@@ -46,28 +64,30 @@ class Transaction{
      * @returns {Transaction} new Transaction
      */
     static newTransaction(senderWallet, recipient, amount){
-
         // Interrompe execução, se não tiver saldo suficiente
         if (amount > senderWallet.balance) {
             // valor é maior que o saldo
             console.log(`Amount: ${amount} exceeds balance.`);
             return;
         }
-       
-        // insere a transação
-        const transaction = new this();
-        //
-        transaction.outputs.push(...[
-            // atualiza o saldo da carteira remetente, subtraindo
-            { amount: senderWallet.balance - amount, address: senderWallet.publicKey },
-            // adiciona o valor ao destinatário
-            { amount, address: recipient }
-        ]);
+        // cria a transação e adicionando as saídas
+        return Transaction.transactionWithOutputs(senderWallet, [
+                // atualiza o saldo da carteira remetente, subtraindo
+                { amount: senderWallet.balance - amount, address: senderWallet.publicKey },
+                // adiciona o valor ao destinatário
+                { amount, address: recipient }
+            ]);
+    }
 
-        // assina a transação
-        Transaction.signTransaction(transaction, senderWallet);
-    
-        return transaction;
+    /**
+     * Cria a recompensa do minerador
+     * @param {Wallet} minerWallet 
+     * @param {Wallet} blockchainWallet 
+     */
+    static rewardTransaction(minerWallet, blockchainWallet){
+        return Transaction.transactionWithOutputs(blockchainWallet, [{
+                amount: MINING_REWARD, address: minerWallet.publicKey
+            }]);
     }
 
     /**

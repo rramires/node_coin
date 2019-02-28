@@ -55,6 +55,16 @@ class Wallet{
         }
         return transaction;
     }
+
+    /**
+     * Cria e retorna a carteira de recompensas
+     * @returns {Wallet} - wallet do blockchain
+     */
+    static blockchainWallet(){
+        const blockchainWallet = new this();
+        blockchainWallet.address = 'blockchain-wallet';
+        return blockchainWallet;
+    }
 }
 // exportando a classe
 module.exports = Wallet;

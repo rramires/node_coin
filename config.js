@@ -4,4 +4,6 @@ const MINE_RATE = production ? 600000 : 3000; // 10 min ou 3 seg
 
 const INITIAL_BALANCE = 1000;
 
-module.exports = { DIFFICULTY, MINE_RATE, INITIAL_BALANCE };
+const MINING_REWARD = 50;
+
+module.exports = { DIFFICULTY, MINE_RATE, INITIAL_BALANCE, MINING_REWARD };
