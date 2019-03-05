@@ -58,6 +58,13 @@ class TransactionPool{
             return transaction;
         });
     }
+
+    /**
+     * Limpa todas as transações
+     */
+    clear(){
+        this.transactions = [];
+    }
 }
 module.exports = TransactionPool;
 

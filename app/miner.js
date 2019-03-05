@@ -1,3 +1,6 @@
+const Wallet = require('../wallet');
+const Transaction = require('../wallet/transaction');
+
 class Miner{
 
     /**
@@ -21,10 +24,17 @@ class Miner{
         // pega as transações válidas que estão na pool
         const validTransactions = this.transactionPool.validTransactions();
         // inclui uma transação de recompensa para o minerador
+        validTransactions.push(Transaction.rewardTransaction(this.wallet, Wallet.blockchainWallet()));
         // cria um bloco contendo as transações válidas
+        const block = this.blockchain.addBlock(validTransactions);
         // sincroniza o blockchain contendo o novo bloco com os peers
+        this.p2pServer.syncChains();
         // limpa a pool retirando as transações que foram adicionadas
+        this.transactionPool.clear();
         // transmite para os mineradores limparem a pool também
+        this.p2pServer.broadcastClearTransactions();
+        //
+        return block;
     }
 }
 module.exports = Miner;

@@ -29,6 +29,10 @@ describe('TransactionPool', () => {
       expect(tp.transactions.find(t => t.id === newTransaction.id))
             .not.toEqual(oldTransaction);
     });
+    it('Valida limpeza das transações', () => {
+      tp.clear();
+      expect(tp.transactions).toEqual([]);
+    });
     describe('Misturando transações válidas e inválidas', () => {
       // declarações
       let validTransactions;
