@@ -4,6 +4,7 @@ const Blochchain = require('../blockchain');
 const P2pServer = require('./p2p-server');
 const Wallet = require('../wallet');
 const TransactionPool = require('../wallet/transaction-pool');
+const Miner = require('./miner');
 
 // Porta da API, default 3001 mas pode ser alterada 
 // via linha de comando na hora da execução, ex:
@@ -20,6 +21,8 @@ const wallet = new Wallet();
 const tp = new TransactionPool();
 // instancia do servidor p2p
 const p2pServer = new P2pServer(bc, tp);
+// instância do minerador
+const miner = new Miner(bc, tp, wallet, p2pServer);
 
 /**
  * Intercepta as chamadas e transforma em JSON
@@ -74,6 +77,15 @@ app.post('/transact', (req, res) => {
  */
 app.get('/public-key', (req, res) => {
     res.json({ publicKey: wallet.publicKey });
+});
+
+/**
+ * Minera as transações
+ */
+app.get('/mine-transactions', (req, res) => {
+    const block = miner.mine();
+    console.log(`New block added: ${block.toString()}`); 
+    res.redirect('/blocks');   
 });
 
 // executando 
