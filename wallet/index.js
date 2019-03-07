@@ -36,9 +36,13 @@ class Wallet{
      * @param {String} recipient - endereco da carteira destino 
      * @param {Number} amount - valor enviado
      * @param {TransactionPool} transactionPool - piscina de transações
+     * @param {Blockchain} blockchain - cadeia de blocoa
      * @returns {Transaction} - transaction
      */
-    createTransaction(recipient, amount, transactionPool) {
+    createTransaction(recipient, amount, blockchain, transactionPool){
+        // calcula o saldo
+        this.balance = this.calculateBalance(blockchain);
+        //
         if(amount > this.balance){
             console.log(`Amount: ${amount}, exceeds current balance: ${this.balance}`);
             return;
@@ -46,7 +50,7 @@ class Wallet{
         // busca na pool
         let transaction = transactionPool.existingTransaction(this.publicKey);
         // se existir atualiza
-        if(transaction) {
+        if(transaction){
             transaction.update(this, recipient, amount);
             // senao cria
         }else{
@@ -64,6 +68,52 @@ class Wallet{
         const blockchainWallet = new this();
         blockchainWallet.address = 'blockchain-wallet';
         return blockchainWallet;
+    }
+
+    /**
+     * Retorna o saldo
+     * @param {Blockchain} blockchain 
+     */
+    calculateBalance(blockchain){
+        let balance = this.balance;
+        let transactions = [];
+        // percorre todos os blocos pegando todas as transações
+        blockchain.chain.forEach(block => block.data.forEach(transaction => {
+            transactions.push(transaction);
+        }));
+        // filtra pegando somente as entradas dessa wallet
+        const walletInputTs = transactions.filter(
+            transaction => transaction.input.address === this.publicKey
+        );
+        // aux
+        let startTime = 0;
+        // se houver entradas
+        if (walletInputTs.length > 0){
+            // reduz até encontrar a transação mais recente, pelo maior timestamp
+            const recentInputT = walletInputTs.reduce(
+                (prev, current) => prev.input.timestamp > current.input.timestamp ? prev : current
+            );
+            // pega o balance
+            balance = recentInputT.outputs.find(output => output.address === this.publicKey).amount;
+            // pega o timestamp
+            startTime = recentInputT.input.timestamp;
+        }
+        // percorre todas as transações
+        transactions.forEach(transaction => {
+            // se for depois da atual
+            if (transaction.input.timestamp > startTime){
+                // procura nos outputs
+                transaction.outputs.find(output => {
+                    // encontrando para essa carteira
+                    if (output.address === this.publicKey){
+                        // acrescenta o saldo
+                        balance += output.amount;
+                    }
+                });
+            }
+        });
+        // retorna o saldo
+        return balance;
     }
 }
 // exportando a classe
