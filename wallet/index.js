@@ -73,29 +73,35 @@ class Wallet{
     /**
      * Retorna o saldo
      * @param {Blockchain} blockchain 
+     * @param {String} - opcional - publicKey 
+     * @returns {Number} - saldo
      */
-    calculateBalance(blockchain){
-        let balance = this.balance;
+    calculateBalance(blockchain, publicKey){
+        let balance = 0;
         let transactions = [];
+        let startTime = 0;
+        // se não for passada uma chave pública, define a da carteira
+        publicKey = publicKey ? publicKey : this.publicKey;
         // percorre todos os blocos pegando todas as transações
         blockchain.chain.forEach(block => block.data.forEach(transaction => {
             transactions.push(transaction);
         }));
         // filtra pegando somente as entradas dessa wallet
         const walletInputTs = transactions.filter(
-            transaction => transaction.input.address === this.publicKey
+            transaction => transaction.input.address === publicKey
         );
-        // aux
-        let startTime = 0;
-        // se houver entradas
-        if (walletInputTs.length > 0){
+        // se não houver transações dessa carteira
+        if(walletInputTs.length == 0){
+            // seta o balance inicial
+            balance = this.balance;
+        }else{
             // reduz até encontrar a transação mais recente, pelo maior timestamp
             const recentInputT = walletInputTs.reduce(
                 (prev, current) => prev.input.timestamp > current.input.timestamp ? prev : current
             );
-            // pega o balance
-            balance = recentInputT.outputs.find(output => output.address === this.publicKey).amount;
-            // pega o timestamp
+            // pega o balance mais recente
+            balance = recentInputT.outputs.find(output => output.address === publicKey).amount;
+            // pega o timestamp mais recente
             startTime = recentInputT.input.timestamp;
         }
         // percorre todas as transações
@@ -105,7 +111,7 @@ class Wallet{
                 // procura nos outputs
                 transaction.outputs.find(output => {
                     // encontrando para essa carteira
-                    if (output.address === this.publicKey){
+                    if (output.address === publicKey){
                         // acrescenta o saldo
                         balance += output.amount;
                     }

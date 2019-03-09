@@ -88,6 +88,23 @@ app.get('/mine-transactions', (req, res) => {
     res.redirect('/blocks');   
 });
 
+/**
+ * Retorna o saldo da carteira da instância
+ */
+app.get('/get-balance', (req, res) => {
+    res.json({ balance: wallet.calculateBalance(bc) });   
+});
+
+/**
+ * Retorna o saldo de uma carteira específica
+ * Use: localhost:3001/get-balance - raw application/json
+ * { "publicKey": " wallet public key " }
+ */
+app.post('/get-balance', (req, res) => {
+    const { publicKey } = req.body;
+    res.json({ balance: wallet.calculateBalance(bc, publicKey) });   
+});
+
 // executando 
 app.listen(HTTP_PORT, () => console.log(`App listening on port: ${HTTP_PORT}`));
 p2pServer.listen();
