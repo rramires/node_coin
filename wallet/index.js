@@ -72,23 +72,20 @@ class Wallet{
 
     /**
      * Retorna o saldo
-     * @param {Blockchain} blockchain 
-     * @param {String} - opcional - publicKey 
+     * @param {Blockchain} blockchain  
      * @returns {Number} - saldo
      */
-    calculateBalance(blockchain, publicKey){
-        let balance = 0;
+    calculateBalance(blockchain){
+        let balance = this.balance;
         let transactions = [];
         let startTime = 0;
-        // se não for passada uma chave pública, define a da carteira
-        publicKey = publicKey ? publicKey : this.publicKey;
         // percorre todos os blocos pegando todas as transações
         blockchain.chain.forEach(block => block.data.forEach(transaction => {
             transactions.push(transaction);
         }));
         // filtra pegando somente as entradas dessa wallet
         const walletInputTs = transactions.filter(
-            transaction => transaction.input.address === publicKey
+            transaction => transaction.input.address === this.publicKey
         );
         // se não houver transações dessa carteira
         if(walletInputTs.length == 0){
@@ -100,7 +97,7 @@ class Wallet{
                 (prev, current) => prev.input.timestamp > current.input.timestamp ? prev : current
             );
             // pega o balance mais recente
-            balance = recentInputT.outputs.find(output => output.address === publicKey).amount;
+            balance = recentInputT.outputs.find(output => output.address === this.publicKey).amount;
             // pega o timestamp mais recente
             startTime = recentInputT.input.timestamp;
         }
@@ -111,7 +108,7 @@ class Wallet{
                 // procura nos outputs
                 transaction.outputs.find(output => {
                     // encontrando para essa carteira
-                    if (output.address === publicKey){
+                    if (output.address === this.publicKey){
                         // acrescenta o saldo
                         balance += output.amount;
                     }
